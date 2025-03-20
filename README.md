@@ -96,7 +96,8 @@
 db.Student.createIndex({ _id: 1, group: 1 });
 ```
 
-Ускоряет выборку студентов по группам. 2. Индекс на поле `enrollment_year`:
+Ускоряет выборку студентов по группам. 
+2. Индекс на поле `enrollment_year`:
 
 ```javascript
 db.Student.createIndex({ enrollment_year: 1 });
