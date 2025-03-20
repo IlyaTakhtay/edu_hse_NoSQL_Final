@@ -17,6 +17,15 @@ db = client[f"{MONGO_DB}"]
 
 fake = Faker()
 
+courses = [
+    {"name": "Введение в программирование на Python", "duration": "144 часа"},
+    {"name": "Структуры данных и алгоритмы на Python", "duration": "180 часов"},
+    {"name": "Разработка веб-приложений с использованием Flask/Django", "duration": "162 часа"},
+    {"name": "Машинное обучение и анализ данных с помощью Python", "duration": "216 часов"},
+    {"name": "Работа с базами данных в Python", "duration": "144 часа"},
+    {"name": "Тестирование и отладка кода на Python", "duration": "108 часов"}
+]
+
 # Генерация студентов
 def generate_students(count=100):
     students = []
@@ -39,13 +48,15 @@ def generate_marks(students, count=200):
     marks = []
     for _ in range(count):
         student = random.choice(students)
+        cr = random.choice(courses)
         mark = {
             "_id": fake.uuid4(),  # Уникальный идентификатор оценки
             "student_id": student["_id"],  # Номер зачетки студента
-            "grade": random.randint(2, 5),  # Оценка (от 2 до 5)
-            "type": random.choice(["кр1", "кр2", "экз"]),  # Тип оценки (кр1, кр2, экз и т.д.)
+            "grade": random.randint(2, 10),  # Оценка (от 2 до 10)
+            "type": random.choice(["test1", "test2", "exam"]),  # Тип оценки (кр1, кр2, экз и т.д.)
             "course": {
-                "name": fake.catch_phrase(),  # Название курса
+                "name": cr["name"],
+                "duration": cr["duration"],
                 "professor": {
                     "full_name": fake.name()  # ФИО преподавателя
                 },
