@@ -17,126 +17,50 @@ db = client[f"{MONGO_DB}"]
 
 fake = Faker()
 
-# Списки для генерации данных
-FACULTIES = [
-    "Информационные технологии",
-    "Экономика",
-    "Юриспруденция",
-    "Международные отношения",
-    "Бизнес и менеджмент",
-    "Социология",
-    "Психология",
-    "Филология",
-    "Математика",
-    "Физика",
-    "История",
-    "Философия",
-    "Дизайн",
-    "Журналистика",
-    "Политология"
-]
-
-POSITIONS = [
-    "Профессор",
-    "Доцент",
-    "Ассистент",
-    "Старший преподаватель",
-    "Преподаватель"
-]
-
-DEPARTMENTS = [
-    "Кафедра программирования",
-    "Кафедра математики и статистики",
-    "Кафедра экономической теории",
-    "Кафедра права и законодательства",
-    "Кафедра международных исследований",
-    "Кафедра менеджмента и маркетинга",
-    "Кафедра социологии и социальных исследований",
-    "Кафедра психологии развития",
-    "Кафедра филологии и лингвистики",
-    "Кафедра физики и нанотехнологий"
-]
-
 # Генерация студентов
 def generate_students(count=100):
     students = []
     for _ in range(count):
         student = {
-            "_id": fake.uuid4(),
-            "name": fake.name(),
-            "group": fake.bothify(text='??-##', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-            "faculty": random.choice(FACULTIES),
-            "year": random.randint(1, 6)
+            "_id": fake.uuid4(),  # Номер зачетки
+            "full_name": fake.name(),  # ФИО студента
+            "group": fake.bothify(text='??-##', letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'),  # Группа
+            "enrollment_year": random.randint(2018, 2024),  # Год поступления
+            "contacts": {
+                "email": fake.email(),  # Email студента
+                "phone": fake.phone_number()  # Телефон студента
+            }
         }
         students.append(student)
     return students
 
-# Генерация преподавателей
-def generate_teachers(count=20):
-    teachers = []
+# Генерация оценок (с вложением курса и преподавателя)
+def generate_marks(students, count=200):
+    marks = []
     for _ in range(count):
-        teacher = {
-            "_id": fake.uuid4(),
-            "fullName": fake.name(),
-            "department": random.choice(DEPARTMENTS),
-            "position": random.choice(POSITIONS),
-            "email": fake.email()
+        student = random.choice(students)
+        mark = {
+            "_id": fake.uuid4(),  # Уникальный идентификатор оценки
+            "student_id": student["_id"],  # Номер зачетки студента
+            "grade": random.randint(2, 5),  # Оценка (от 2 до 5)
+            "type": random.choice(["кр1", "кр2", "экз"]),  # Тип оценки (кр1, кр2, экз и т.д.)
+            "course": {
+                "name": fake.catch_phrase(),  # Название курса
+                "professor": {
+                    "full_name": fake.name()  # ФИО преподавателя
+                },
+                "semester": random.choice(["Fall 2024", "Spring 2025"]),  # Семестр
+                "credits": random.randint(1, 10)  # Количество кредитов курса
+            }
         }
-        teachers.append(teacher)
-    return teachers
+        marks.append(mark)
+    return marks
 
-# Генерация курсов
-def generate_courses(teachers, count=20):
-    courses = []
-    for _ in range(count):
-        course = {
-            "_id": fake.uuid4(),
-            "name": fake.catch_phrase(),
-            "department": random.choice(DEPARTMENTS),
-            "credits": random.randint(1, 10),
-            "mainTeacher": random.choice(teachers)["_id"]
-        }
-        courses.append(course)
-    return courses
-
-
-# Генерация ведомостей
-def generate_grade_sheets(courses, students, count=40):
-    grade_sheets = []
-    for _ in range(count):
-        course = random.choice(courses)
-        is_graded = random.choice([True, False])
-        future_date = fake.date_between(start_date="+1y", end_date="+2y")
-        grade_sheet = {
-            "_id": fake.uuid4(),
-            "courseId": course["_id"],
-            "semester": random.choice(["Fall 2025", "Spring 2026"]),
-            "teacherId": course["mainTeacher"],
-            "date": datetime.combine(future_date, datetime.min.time()),
-            "status": "closed" if is_graded else "open",
-            "grades": []
-        }
-        if is_graded:
-            for student in random.sample(students, random.randint(20,30)):
-                future_date = fake.date_between(start_date="+1y", end_date="+2y")
-                grade = {
-                    "studentId": student["_id"],
-                    "grade": random.randint(2, 5),
-                    "date": grade_sheet["date"]
-                }
-                grade_sheet["grades"].append(grade)
-        grade_sheets.append(grade_sheet)
-    return grade_sheets
-
-# Генерация и вставка данных
+# Генерация и вставка данных в базу данных
 students = generate_students()
-teachers = generate_teachers()
-courses = generate_courses(teachers)
-grade_sheets = generate_grade_sheets(courses, students)
+marks = generate_marks(students)
 
-db.students.insert_many(students)
-db.teachers.insert_many(teachers)
-db.courses.insert_many(courses)
-db.gradeSheets.insert_many(grade_sheets)
+db.Student.insert_many(students)
+db.Mark.insert_many(marks)
 
 print("Данные успешно сгенерированы и вставлены в базу данных.")
