@@ -128,8 +128,8 @@ db.createCollection("mark", {
         },
         grade: {
           bsonType: "int",
-          minimum: 2,
-          maximum: 5
+          minimum: 1,
+          maximum: 10
         },
         type: {
           bsonType: "string",
@@ -148,7 +148,7 @@ db.createCollection("mark", {
             },
             semester: {
               bsonType: "string",
-              pattern: "^(Fall|Spring|Summer) \\d{4}$"
+              pattern: "^(Fall|Spring) \\d{4}$"
             },
             credits: {
               bsonType: "int",
