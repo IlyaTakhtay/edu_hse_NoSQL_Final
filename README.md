@@ -115,19 +115,22 @@ db.Student.createIndex({ enrollment_year: 1 });
 db.Mark.createIndex({ student_id: 1 });
 ```
 
-Ускоряет выборку оценок для конкретного студента. 2. Композитный индекс на поля `course.name` и `course.semester`:
+Ускоряет выборку оценок для конкретного студента. 
+2. Композитный индекс на поля `course.name` и `course.semester`:
 
 ```javascript
 db.Mark.createIndex({ "course.name": 1, "course.semester": 1 });
 ```
 
-Оптимизирует запросы, связанные с курсами за определённый семестр. 3. Индекс на поле `type`:
+Оптимизирует запросы, связанные с курсами за определённый семестр. 
+3. Индекс на поле `type`:
 
 ```javascript
 db.Mark.createIndex({ type: 1 });
 ```
 
-Ускоряет выборку промежуточных или итоговых оценок. 4. Композитный индекс на поля `grade` и `course.name`:
+Ускоряет выборку промежуточных или итоговых оценок. 
+4. Композитный индекс на поля `grade` и `course.name`:
 
 ```javascript
 db.Mark.createIndex({ grade: 1, "course.name": 1 });
