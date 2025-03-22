@@ -34,7 +34,45 @@
   - `phone`: Номер телефона студента.
 
 ---
-
+#### Схема создания:
+```json
+db.createCollection("student", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "full_name", "group"],
+      properties: {
+        _id: {
+          bsonType: "string"
+        },
+        full_name: {
+          bsonType: "string"
+        },
+        group: {
+          bsonType: "string"
+        },
+        enrollment_year: {
+          bsonType: "int",
+          minimum: 1900,
+          maximum: 2100
+        },
+        contacts: {
+          bsonType: "object",
+          properties: {
+            email: {
+              bsonType: "string",
+              pattern: "^.+@.+\\..+$"
+            },
+            phone: {
+              bsonType: "string"
+            }
+          }
+        }
+      }
+    }
+  }
+});
+```
 ### **2. Коллекция `Mark`**
 
 Хранит информацию об оценках студентов, связанных с конкретными курсами и семестрами.
@@ -74,16 +112,70 @@
     - `full_name`: Полное имя преподавателя.
 
 ---
-
+#### Схема создания:
+```json
+db.createCollection("mark", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["_id", "student_id", "grade", "type", "course"],
+      properties: {
+        _id: {
+          bsonType: "string"
+        },
+        student_id: {
+          bsonType: "string"
+        },
+        grade: {
+          bsonType: "int",
+          minimum: 2,
+          maximum: 5
+        },
+        type: {
+          bsonType: "string",
+          enum: ["test1", "test2", "exam", "project"]
+        },
+        course: {
+          bsonType: "object",
+          required: ["name"],
+          properties: {
+            name: {
+              bsonType: "string"
+            },
+            duration: {
+              bsonType: "string",
+              pattern: "^\\d+ часов$"
+            },
+            semester: {
+              bsonType: "string",
+              pattern: "^(Fall|Spring|Summer) \\d{4}$"
+            },
+            credits: {
+              bsonType: "int",
+              minimum: 1
+            }
+          }
+        },
+        professor: {
+          bsonType: "object",
+          properties: {
+            full_name: {
+              bsonType:"string"
+            }
+          }
+        }
+      }
+    }
+  }
+});
+```
 ## **Обоснование структуры**
 
 1. **Оптимизация запросов на чтение**:
    Денормализованная модель позволяет хранить всю информацию о курсе и преподавателе прямо в документе оценки (`Mark`). Это исключает необходимость дополнительных запросов к коллекциям курсов или преподавателей и ускоряет выполнение аналитических запросов.
+   Дополнительная информация о студентах хранится в отдельной коллекци, поскольку она редко требуется, причина - запросы чаще всего происходят по номеру зачетки.
 2. **Упрощение аналитики**:
    Вложенные объекты позволяют легко фильтровать данные по конкретным параметрам (например, семестр, название курса, преподаватель).
-3. **Гибкость**:
-   Легко добавлять новые поля или параметры без изменения структуры всей базы данных.
-
 ---
 
 Для обеспечения высокой производительности при выполнении запросов необходимо добавить индексы на ключевые поля:
