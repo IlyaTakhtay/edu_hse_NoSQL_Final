@@ -35,7 +35,7 @@
 
 ---
 #### Схема создания:
-```json
+```javascript
 db.createCollection("student", {
   validator: {
     $jsonSchema: {
@@ -113,7 +113,7 @@ db.createCollection("student", {
 
 ---
 #### Схема создания:
-```json
+```javascript
 db.createCollection("mark", {
   validator: {
     $jsonSchema: {
